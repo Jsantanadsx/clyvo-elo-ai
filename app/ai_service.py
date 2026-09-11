@@ -4,9 +4,12 @@ def gerar_orientacao(dados, alertas):
 
     if not alertas:
         return (
-            f"Nenhuma alteração relevante foi identificada para {pet['nome']} "
-            "com base nos dados analisados."
-        )
+        f"Os dados monitorados de {pet['nome']} estão dentro dos parâmetros "
+        "esperados neste momento. Nenhuma situação relevante foi identificada. "
+        "O acompanhamento contínuo deve ser mantido.\n\n"
+        "Aviso: esta orientação é apenas de apoio ao acompanhamento e não substitui "
+        "avaliação ou diagnóstico de um médico-veterinário."
+    )
 
     prioridades_altas = [
         alerta for alerta in alertas

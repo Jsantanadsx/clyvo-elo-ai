@@ -1,0 +1,20 @@
+{
+  "pet": {
+    "id_pet": 2,
+    "nome": "Zakaria",
+    "especie": "GATO",
+    "raca": "SRD",
+    "peso_kg": 2.6
+  },
+  "evento_clinico": {
+    "tipo": "CHECKUP",
+    "descricao": "Acompanhamento preventivo",
+    "status": "PENDENTE"
+  },
+  "sensores": {
+    "nivel_agua": 12.0,
+    "nivel_racao": 8.0,
+    "temperatura": 32.0,
+    "umidade": 78.0
+  }
+}

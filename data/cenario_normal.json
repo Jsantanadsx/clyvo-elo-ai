@@ -1,0 +1,20 @@
+{
+  "pet": {
+    "id_pet": 1,
+    "nome": "Lara",
+    "especie": "CACHORRO",
+    "raca": "Labrador",
+    "peso_kg": 24.5
+  },
+  "evento_clinico": {
+    "tipo": "CHECKUP",
+    "descricao": "Check-up de rotina",
+    "status": "CONCLUIDO"
+  },
+  "sensores": {
+    "nivel_agua": 75.0,
+    "nivel_racao": 65.0,
+    "temperatura": 24.0,
+    "umidade": 50.0
+  }
+}
