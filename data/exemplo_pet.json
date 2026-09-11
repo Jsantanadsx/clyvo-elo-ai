@@ -1,0 +1,20 @@
+{
+  "pet": {
+    "id_pet": 1,
+    "nome": "Bolt",
+    "especie": "CACHORRO",
+    "raca": "Yorkshire Terrier",
+    "peso_kg": 3.2
+  },
+  "evento_clinico": {
+    "tipo": "POS_OPERATORIO",
+    "descricao": "Castração - retorno em 10 dias, antibiótico 2x ao dia",
+    "status": "PENDENTE"
+  },
+  "sensores": {
+    "nivel_agua": 18.0,
+    "nivel_racao": 6.5,
+    "temperatura": 29.5,
+    "umidade": 55.0
+  }
+}
