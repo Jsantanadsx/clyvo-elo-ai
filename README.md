@@ -341,8 +341,8 @@ Projeto desenvolvido para o Challenge FIAP.
 
 Vídeo de apresentação do projeto e demonstração funcional:
 
-**YouTube (não listado):**  
-``
+**YouTube:**  
+`https://www.youtube.com/watch?v=n-DC-6svdz8`
 
 O vídeo apresenta:
 
