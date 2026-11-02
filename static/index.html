@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>CLYVO Elo AI — Sprint 4</title>
+  <style>
+    :root{color-scheme:dark;font-family:Inter,Segoe UI,Arial,sans-serif;background:#101827;color:#edf4fc}
+    *{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 85% 5%,#193c55 0,transparent 38%),#101827}
+    .wrap{max-width:1080px;margin:auto;padding:40px 20px 80px}.head{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}
+    .logo{font-size:1.12rem;font-weight:800;letter-spacing:.05em}.logo span{color:#49dec3}.tag{color:#aac0d8;font-size:.8rem;border:1px solid #34475b;border-radius:30px;padding:8px 12px}
+    h1{font-size:clamp(2rem,4vw,3.6rem);max-width:850px;line-height:1.1;margin:55px 0 18px}h1 em{color:#49dec3;font-style:normal}
+    p{color:#bbcbdd;line-height:1.6}.lead{max-width:790px;font-size:1.05rem;margin-bottom:32px}
+    .grid{display:grid;grid-template-columns:1fr 1.15fr;gap:18px}.card{background:#1c293a;border:1px solid #33465b;border-radius:18px;padding:24px;box-shadow:0 13px 35px #0002}
+    h2{margin:0 0 12px;font-size:1.1rem}label{display:block;color:#adbed1;font-size:.9rem;margin:22px 0 8px}select,input{width:100%;padding:13px 12px;border-radius:10px;background:#101e2e;border:1px solid #40556c;color:#f3f9ff;font-size:1rem}
+    button{cursor:pointer;background:#34d3b1;color:#112126;font-weight:800;border:0;border-radius:10px;padding:13px 19px;margin-top:18px;font-size:.96rem}
+    button.secondary{background:#293d51;color:#e5f2ff;margin-left:7px}button:disabled{opacity:.55;cursor:wait}
+    .pill{display:inline-block;font-size:.76rem;padding:5px 9px;border-radius:40px;background:#203e49;color:#91ecde;margin:5px 7px 5px 0}
+    .danger{background:#533038;color:#ffc6c6}.warning{background:#514325;color:#ffe2a6}
+    .small{font-size:.83rem}.result{white-space:pre-wrap;color:#edf4fc;line-height:1.7;min-height:70px;margin-top:10px}
+    .empty{color:#8298ad}.error{color:#ffc8c8}.line{border-top:1px solid #36465a;margin-top:17px;padding-top:17px}
+    @media(max-width:740px){.grid{grid-template-columns:1fr}.wrap{padding-top:23px}h1{margin-top:35px}}
+  </style>
+</head>
+<body>
+ <main class="wrap">
+   <header class="head"><div class="logo">CLYVO <span>✦</span> ELO AI</div><div class="tag">FIAP Challenge 2026 · Sprint 4</div></header>
+   <h1>Do sensor à <em>orientação personalizada.</em></h1>
+   <p class="lead">Demonstração com dados sintéticos dos cenários da Sprint 3. O motor de regras determina os alertas; um modelo generativo real transforma o contexto em uma mensagem para o tutor.</p>
+   <div class="grid">
+    <section class="card">
+      <h2>1. Escolha o cenário</h2>
+      <p class="small">Nenhum dado de animais reais é necessário para a apresentação.</p>
+      <label for="scenario">Cenário de acompanhamento</label>
+      <select id="scenario"><option value="normal">Lara — Rotina normal</option><option value="alerta">Zakaria — Alertas ambientais</option><option value="pos_operatorio">Bolt — Pós-operatório</option></select>
+      <label for="token">Token de integração (apenas se configurado no servidor)</label>
+      <input id="token" type="password" autocomplete="off" placeholder="Opcional para teste local" />
+      <button id="rules">Executar motor de regras</button>
+      <button id="ai" class="secondary">Gerar orientação com IA</button>
+      <p class="small">A API generativa exige <code>OPENAI_API_KEY</code> no servidor. O navegador não recebe essa chave.</p>
+    </section>
+    <section class="card" aria-live="polite">
+      <h2>2. Resultado da análise</h2>
+      <div id="status" class="small empty">Selecione um cenário e execute uma análise.</div>
+      <div class="line"><strong>Alertas classificados</strong><div id="alerts" class="result empty">Nenhuma análise executada.</div></div>
+      <div class="line"><strong>Orientação personalizada</strong><div id="orientation" class="result empty">Aguardando execução com IA.</div></div>
+    </section>
+   </div>
+   <p class="small">Aviso: este componente não realiza diagnósticos, prescrição ou triagem clínica. As prioridades exibidas vêm de regras de demonstração e devem ser validadas por profissionais.</p>
+ </main>
+ <script>
+  const scenario=document.getElementById('scenario'),token=document.getElementById('token'),status=document.getElementById('status'),alerts=document.getElementById('alerts'),orientation=document.getElementById('orientation');
+  const rules=document.getElementById('rules'),ai=document.getElementById('ai');
+  async function run(useAI){
+    rules.disabled=ai.disabled=true;
+    status.className='small';status.textContent='Processando cenário...';alerts.textContent='';orientation.textContent=useAI?'Aguardando resposta do modelo...':'Não solicitado (somente regras).';
+    try{
+      const r=await fetch('/api/cenarios/'+encodeURIComponent(scenario.value));if(!r.ok)throw Error('Não foi possível carregar o cenário.');
+      const payload=await r.json();const headers={'Content-Type':'application/json'};if(token.value)headers['X-CLYVO-TOKEN']=token.value;
+      const response=await fetch(useAI?'/api/analisar':'/api/alertas',{method:'POST',headers,body:JSON.stringify(payload)});
+      const data=await response.json();
+      if(!response.ok)throw Error(typeof data.detail==='string'?data.detail:'Falha no processamento (HTTP '+response.status+').');
+      const count=data.quantidade_alertas;status.textContent=payload.pet.nome+' · '+count+' alerta(s) · '+data.origem;
+      alerts.replaceChildren();if(count===0)alerts.textContent='Nenhum alerta identificado.';
+      for(const a of data.alertas){const div=document.createElement('div');const span=document.createElement('span');span.className='pill '+(a.prioridade==='ALTA'?'danger':'warning');span.textContent=a.prioridade;div.append(span,document.createTextNode(a.tipo+' — '+a.mensagem));alerts.append(div);}
+      orientation.textContent=useAI?data.orientacao.replace(/\*\*/g,''):'A orientação generativa não foi solicitada.';
+    }catch(e){status.className='small error';status.textContent='Falha: '+e.message;orientation.textContent=useAI?'Não houve resposta de IA real. Verifique a chave e os créditos da API.':'Sem geração de texto.';}
+    finally{rules.disabled=ai.disabled=false;}
+  }
+  rules.addEventListener('click',()=>run(false));ai.addEventListener('click',()=>run(true));
+ </script>
+</body></html>
