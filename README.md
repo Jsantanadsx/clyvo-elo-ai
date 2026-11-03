@@ -1,6 +1,6 @@
 # CLYVO Elo AI — Sprint 4 | IoT, IoB & IA Generativa
 
-Evolução da Sprint 3 da FIAP para o Challenge CLYVO VET. Preserva o **motor de regras** e os **três cenários JSON sintéticos** e integra uma chamada **real** a um LLM pela **OpenAI Responses API**. Inclui API FastAPI, interface web de demonstração, dez testes automatizados e documentos técnicos.
+Evolução da Sprint 3 da FIAP para o Challenge CLYVO VET. Preserva o **motor de regras** e os **três cenários JSON sintéticos** e integra uma chamada **real** a um LLM pela **OpenAI Responses API**. Inclui API FastAPI, interface web de demonstração, 21 testes automatizados e documentos técnicos.
 
 ## Equipe
 
@@ -23,16 +23,21 @@ Evolução da Sprint 3 da FIAP para o Challenge CLYVO VET. Preserva o **motor de
 - Python 3.11+; conexão com internet para chamada real à OpenAI.
 - Chave OpenAI API com créditos/faturamento habilitados. A assinatura do ChatGPT **não** inclui automaticamente créditos da API.
 
+### Segurança da API (importante)
+
+**Os POSTs são fechados por padrão.** Para executar a demonstração **somente no próprio computador**, use `CLYVO_LOCAL_DEMO=true` com Uvicorn em `127.0.0.1`. O modo local rejeita requisições de IPs externos. Para integrar Java ↔ Python em servidores separados, defina **o mesmo token secreto** em `CLYVO_API_TOKEN` no Python e `CLYVO_AI_TOKEN` no Java; não use modo demo. Em deploy, use HTTPS, gateway/autorização, limite de taxa/consumo, gestão de segredos e logs. A presença de token estático é apenas um primeiro controle, não autenticação de usuários finais.
+
 ### Windows PowerShell (VS Code)
 
 ```powershell
-git clone https://github.com/Jsantanadsx/clyvo-elo-ai.git
+git clone -b sprint4-ia-generativa https://github.com/Jsantanadsx/clyvo-elo-ai.git
 cd clyvo-elo-ai
 python -m venv .venv
 .\.venv\Scripts\python.exe -m pip install -r requirements-dev.txt
 # Defina a chave na sessão, sem gravar no Git:
 $env:OPENAI_API_KEY = "SUA_CHAVE_PRIVADA"
 $env:OPENAI_MODEL = "gpt-4o-mini"
+$env:CLYVO_LOCAL_DEMO = "true"  # apenas localhost, sem token
 .\.venv\Scripts\python.exe -m uvicorn app.api:app --host 127.0.0.1 --port 8000
 ```
 
@@ -47,6 +52,7 @@ python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements-dev.txt
 export OPENAI_API_KEY='SUA_CHAVE_PRIVADA'
+export CLYVO_LOCAL_DEMO=true # apenas localhost
 python -m uvicorn app.api:app --host 127.0.0.1 --port 8000
 ```
 
@@ -87,7 +93,7 @@ Invoke-RestMethod -Method Post -Uri http://127.0.0.1:8000/api/analisar -ContentT
 | POST | `/api/alertas` | Alertas por regras, sem LLM |
 | POST | `/api/analisar` | Alertas + orientação real do LLM |
 
-Quando `CLYVO_API_TOKEN` estiver definida, o cabeçalho `X-CLYVO-TOKEN` é obrigatório nos dois POSTs. **Não publique esse protótipo aberto na internet** sem autenticação adequada, limites de requisições, HTTPS e controles de custos; a interface é um ambiente de demonstração local.
+Os dois endpoints POST exigem `X-CLYVO-TOKEN` correspondente a `CLYVO_API_TOKEN` por padrão. Sem token, só funcionam com `CLYVO_LOCAL_DEMO=true` **e origem em loopback**. Nunca habilite o modo demo em deploy público. Use HTTPS, limites de requisições e custos. O token é proteção serviço a serviço, não autorização por usuário.
 
 ## 5. Testes automatizados
 
@@ -95,7 +101,7 @@ Quando `CLYVO_API_TOKEN` estiver definida, o cabeçalho `X-CLYVO-TOKEN` é obrig
 python -m pytest -q
 ```
 
-Dez testes em `tests/test_sprint4.py`: cenário normal, quatro alertas, pós-operatório, validação de dados, indisponibilidade sem chave, contrato do LLM (mock), token e cenário inexistente.
+21 testes em `tests/test_sprint4.py`: cenários, alertas, limites, dados inválidos, tokens, acesso externo, normalização e validação de tipo clínico, indisponibilidade, contrato com LLM (mock), falha do provedor, validação de resposta e interface. GitHub Actions executa os testes automaticamente sem acesso à chave da OpenAI.
 
 **Limitação importante:** os testes locais não fazem chamadas pagas ao provedor. O mock valida somente o contrato. Para comprovar IA real ao professor, configure a chave, faça a solicitação `/api/analisar` e grave o resultado. Documente também a data, modelo e cenário executado.
 
@@ -122,7 +128,7 @@ Para uso real, dados e eventos vêm do backend/banco, não dos JSONs de demonstr
 ## 7. Segurança, privacidade e limites
 
 - Cenários de demonstração têm dados sintéticos; **não envie prontuários identificáveis ou dados pessoais reais ao LLM** sem avaliação de privacidade, base legal e medidas adequadas.
-- O prompt recebe as leituras e alertas classificados, evita prescrição/diagnóstico e trata o texto como assistência informativa.
+- O prompt recebe as leituras e alertas classificados, evita prescrição/diagnóstico e trata o texto como assistência informativa. Uma validação heurística pós-geração rejeita padrões de dose/prescrição/diagnóstico; **não garante segurança clínica** e deve ser complementada por revisão profissional antes de uso real.
 - Não substituir atendimento veterinário nem alterar prioridades via LLM.
 - Falha de API retorna erro claro HTTP 503. Alertas determinísticos continuam disponíveis.
 - Os limites usados pelo motor são didáticos, não validados clinicamente.
@@ -141,7 +147,7 @@ Para uso real, dados e eventos vêm do backend/banco, não dos JSONs de demonstr
 - Zakaria: quatro alertas, prioridade conferida e orientação real.
 - Lara: zero alertas, com orientação preventiva.
 - Bolt: três alertas, com orientação contextualizada para o pós-operatório.
-- Execução automatizada relatada no ambiente Windows: **10 passed, 1 warning**.
+- Execução automatizada relatada no ambiente Windows: **21 passed** (suíte local ampliada para o CR; revalidar o CI após publicação).
 - Ver arquivos em [`evidencias/`](evidencias/) e a [matriz documentada](docs/evidencias-validacao-2026-11-02.md).
 - **Ainda pendentes:** teste ponta a ponta com painel Java e vídeo final.
 
@@ -162,3 +168,19 @@ Exemplos de correção dos PBIs e critérios de aceite estão em [`docs/correcao
 - [Casos manuais para Azure Boards](docs/qa-testes-manuais-sistema.md) — propostas ainda não cadastradas.
 - [Checklist da Sprint 4](docs/checklist-entrega.md).
 - [Arquitetura demonstrada e integração pendente](docs/arquitetura-sprint4.md).
+
+## 13. Histórico do Code Review PR #1
+
+- **CR-01:** os POSTs exigem token por padrão; demonstração sem token requer opt-in explícito e origem loopback.
+- **CR-02:** uma validação pós-geração rejeita saídas com padrões de prescrição/dose/diagnóstico; ela é uma barreira básica e não equivale à revisão clínica.
+- **CR-03:** tipos de evento pertencem a um enum com normalização (ex.: `pos-operatorio` → `POS_OPERATORIO`); tipos não suportados retornam 422.
+- **CI:** workflow `.github/workflows/python-tests.yml` testa sem segredo e sem chamadas pagas.
+- **Validação:** `python -m pytest -q` → 21 testes aprovados em ambiente de revisão. Testes reais com OpenAI anteriores aos ajustes precisam ser repetidos após a atualização.
+
+## 14. Matriz oficial e QA
+
+- [Mapa de atendimento dos requisitos da Sprint 4](docs/mapa-atendimento-sprint4.md)
+- [Roteiros manuais para Azure Boards](docs/qa-execucao-azure-boards.md)
+- [Roteiro do vídeo de QA](docs/roteiro-video-qa.md)
+- [Links da entrega QA (a completar na branch develop)](docs/links-entrega-qa.md)
+- [Como atualizar o PR #1 após o Code Review](docs/atualizar-pr1.md)

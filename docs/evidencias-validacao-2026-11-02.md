@@ -1,8 +1,8 @@
 # Evidências da integração generativa — Sprint 4
 
-**Data:** 02/11/2026
-**Ambiente observado:** Windows, Python 3.12.3, FastAPI/Uvicorn local em `127.0.0.1:8000`.
-**Integração:** OpenAI Responses API (`OPENAI_RESPONSES_API` exibido na interface).
+**Data:** 02/11/2026  
+**Ambiente observado:** Windows, Python 3.12.3, FastAPI/Uvicorn local em `127.0.0.1:8000`.  
+**Integração:** OpenAI Responses API (`OPENAI_RESPONSES_API` exibido na interface).  
 **Dados:** JSONs sintéticos oriundos da Sprint 3; nenhum prontuário real foi utilizado.
 
 ## Cenários executados no navegador

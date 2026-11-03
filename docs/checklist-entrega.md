@@ -3,11 +3,12 @@
 ## IoT / IA generativa
 - [x] Motor de regras preservado da Sprint 3.
 - [x] Integração real com OpenAI Responses API validada nos três cenários sintéticos.
-- [x] `pytest -q` com 10 testes aprovados no computador do aluno.
+- [x] `pytest -q` com 21 testes aprovados na revisão (anteriores: 10 no computador do aluno).
 - [x] Capturas de Zakaria, Lara e Bolt e matriz de evidências anexadas.
 - [x] README e instruções de execução atualizados.
 - [ ] Validar Java + Python ponta a ponta; patch preparado separadamente, não executado.
-- [ ] Publicar a evolução no GitHub.
+- [x] Publicar a evolução no GitHub (branch e PR #1; falta atualizar commit da revisão).
+- [ ] Retestar 3 cenários com OpenAI após a revisão de segurança.
 - [ ] Gravar pitch de aproximadamente 5 minutos e publicar como *não listado*.
 - [ ] Incluir no ZIP da submissão os links válidos do repositório e do vídeo.
 
@@ -23,3 +24,5 @@
 - [ ] Publicar links de QA em repositório público e branch `develop`.
 
 **Atenção:** estes checkboxes representam somente o que já foi efetivamente preparado/validado. Nenhum item pendente deve ser descrito como concluído na submissão.
+
+**Matriz de rastreabilidade dos critérios:** [`mapa-atendimento-sprint4.md`](mapa-atendimento-sprint4.md). **Plano de teste manual detalhado:** [`qa-execucao-azure-boards.md`](qa-execucao-azure-boards.md).

@@ -14,7 +14,7 @@ Se ainda não tiver um ambiente virtual, crie com `python -m venv .venv` (no seu
 .\.venv\Scripts\python.exe app/main.py --cenario 2 --somente-regras
 ```
 
-Espera-se `10 passed` no pytest e os quatro alertas para Zakaria.
+Espera-se `21 passed` no pytest e os quatro alertas para Zakaria.
 
 ## 3. Fazer a integração real com IA Generativa
 
@@ -23,6 +23,7 @@ Espera-se `10 passed` no pytest e os quatro alertas para Zakaria.
 ```powershell
 $env:OPENAI_API_KEY = "SUA_CHAVE_PRIVADA_AQUI"
 $env:OPENAI_MODEL = "gpt-4o-mini"
+$env:CLYVO_LOCAL_DEMO = "true"  # somente execução local sem token
 .\.venv\Scripts\python.exe -m uvicorn app.api:app --host 127.0.0.1 --port 8000
 ```
 
@@ -36,7 +37,13 @@ Acesse `http://127.0.0.1:8000`. Teste os três cenários com `Executar motor de 
 - O teste `IA REAL` fica separado para não causar chamadas pagas involuntárias.
 - Cadastrar os testes MANUAIS também no Azure Boards, com objetivos, dados de entrada, saídas esperadas, passos, vínculos PBI e evidências.
 
-## 5. Publicar no GitHub
+## 5. Aplicar correções do PR #1
+
+Esta revisão já usa a branch `sprint4-ia-generativa` no repositório `clyvo-elo-ai-git`. **Não execute novamente o script de clonagem** nem crie outra branch se estiver atualizando o PR existente.
+
+Copie os arquivos atualizados preservando `.git`, execute `python -m pytest -q`, `git diff --check`, `git add`, `git commit` e `git push` **na branch existente**. Veja `docs/atualizar-pr1.md`.
+
+## 5a. Procedimento original (primeira publicação)
 
 O repositório anterior já existe: https://github.com/Jsantanadsx/clyvo-elo-ai
 
