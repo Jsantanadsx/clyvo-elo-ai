@@ -1,0 +1,241 @@
+{
+  "info": {
+    "name": "CLYVO Elo Sprint 4 - QA - API + IA",
+    "description": "Quatro testes automatizados de motor de regras e um teste de integração com OpenAI para executar manualmente com chave válida. Importar no Insomnia ou Postman.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "QA - 4 testes automatizados (sem custo de LLM)",
+      "item": [
+        {
+          "name": "CT01 - Normal sem alertas",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('CT01: HTTP 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('Sem alertas', function () { pm.expect(pm.response.json().quantidade_alertas).to.eql(0); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"pet\": {\n    \"id_pet\": 1,\n    \"nome\": \"Lara\",\n    \"especie\": \"CACHORRO\",\n    \"raca\": \"Labrador\",\n    \"peso_kg\": 24.5\n  },\n  \"evento_clinico\": {\n    \"tipo\": \"CHECKUP\",\n    \"descricao\": \"Check-up de rotina\",\n    \"status\": \"CONCLUIDO\"\n  },\n  \"sensores\": {\n    \"nivel_agua\": 75.0,\n    \"nivel_racao\": 65.0,\n    \"temperatura\": 24.0,\n    \"umidade\": 50.0\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/alertas",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "alertas"
+              ]
+            }
+          }
+        },
+        {
+          "name": "CT02 - Quatro alertas de Zakaria",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('CT02: HTTP 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('Quatro alertas nas prioridades corretas', function () { let a=pm.response.json().alertas; pm.expect(a.length).to.eql(4); pm.expect(a.map(x=>x.tipo)).to.eql(['NIVEL_AGUA','NIVEL_RACAO','TEMPERATURA','UMIDADE']); pm.expect(a.map(x=>x.prioridade)).to.eql(['ALTA','MEDIA','ALTA','MEDIA']); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"pet\": {\n    \"id_pet\": 2,\n    \"nome\": \"Zakaria\",\n    \"especie\": \"GATO\",\n    \"raca\": \"SRD\",\n    \"peso_kg\": 2.6\n  },\n  \"evento_clinico\": {\n    \"tipo\": \"CHECKUP\",\n    \"descricao\": \"Acompanhamento preventivo\",\n    \"status\": \"PENDENTE\"\n  },\n  \"sensores\": {\n    \"nivel_agua\": 12.0,\n    \"nivel_racao\": 8.0,\n    \"temperatura\": 32.0,\n    \"umidade\": 78.0\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/alertas",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "alertas"
+              ]
+            }
+          }
+        },
+        {
+          "name": "CT03 - Pós-operatório de Bolt",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('CT03: HTTP 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('Alerta clínico presente', function () { let a=pm.response.json().alertas; pm.expect(a.length).to.eql(3); pm.expect(a.some(x=>x.tipo==='ACOMPANHAMENTO_CLINICO' && x.prioridade==='ALTA')).to.eql(true); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"pet\": {\n    \"id_pet\": 1,\n    \"nome\": \"Bolt\",\n    \"especie\": \"CACHORRO\",\n    \"raca\": \"Yorkshire Terrier\",\n    \"peso_kg\": 3.2\n  },\n  \"evento_clinico\": {\n    \"tipo\": \"POS_OPERATORIO\",\n    \"descricao\": \"Castração - retorno em 10 dias, antibiótico 2x ao dia\",\n    \"status\": \"PENDENTE\"\n  },\n  \"sensores\": {\n    \"nivel_agua\": 18.0,\n    \"nivel_racao\": 6.5,\n    \"temperatura\": 29.5,\n    \"umidade\": 55.0\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/alertas",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "alertas"
+              ]
+            }
+          }
+        },
+        {
+          "name": "CT04 - Umidade inválida 422",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('CT04: HTTP 422', function () { pm.response.to.have.status(422); });",
+                  "pm.test('Erro de validação no campo sensores', function () { let e=pm.response.json().detail; pm.expect(e.some(x=>x.loc.includes('umidade'))).to.eql(true); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"pet\": {\n    \"id_pet\": 2,\n    \"nome\": \"Zakaria\",\n    \"especie\": \"GATO\",\n    \"raca\": \"SRD\",\n    \"peso_kg\": 2.6\n  },\n  \"evento_clinico\": {\n    \"tipo\": \"CHECKUP\",\n    \"descricao\": \"Acompanhamento preventivo\",\n    \"status\": \"PENDENTE\"\n  },\n  \"sensores\": {\n    \"nivel_agua\": 12.0,\n    \"nivel_racao\": 8.0,\n    \"temperatura\": 32.0,\n    \"umidade\": 150\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/alertas",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "alertas"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Integração REAL com IA - executar separadamente (possui custo)",
+      "item": [
+        {
+          "name": "CT05 - IA real - executar somente com chave válida",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('CT05: HTTP 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('Resposta gerada pelo provedor externo', function () { let r=pm.response.json(); pm.expect(r.ia_generativa_utilizada).to.eql(true); pm.expect(r.origem).to.eql('OPENAI_RESPONSES_API'); pm.expect(r.orientacao).to.be.a('string').and.not.empty; });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"pet\": {\n    \"id_pet\": 2,\n    \"nome\": \"Zakaria\",\n    \"especie\": \"GATO\",\n    \"raca\": \"SRD\",\n    \"peso_kg\": 2.6\n  },\n  \"evento_clinico\": {\n    \"tipo\": \"CHECKUP\",\n    \"descricao\": \"Acompanhamento preventivo\",\n    \"status\": \"PENDENTE\"\n  },\n  \"sensores\": {\n    \"nivel_agua\": 12.0,\n    \"nivel_racao\": 8.0,\n    \"temperatura\": 32.0,\n    \"umidade\": 78.0\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/analisar",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "analisar"
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://127.0.0.1:8000",
+      "type": "string"
+    }
+  ]
+}

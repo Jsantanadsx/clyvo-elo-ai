@@ -1,355 +1,186 @@
-# CLYVO Elo — IA & IoT
+# CLYVO Elo AI — Sprint 4 | IoT, IoB & IA Generativa
 
-Projeto desenvolvido para o Challenge da FIAP na disciplina **Disruptive Architectures: IoT, IoB & Generative IA**.
+Evolução da Sprint 3 da FIAP para o Challenge CLYVO VET. Preserva o **motor de regras** e os **três cenários JSON sintéticos** e integra uma chamada **real** a um LLM pela **OpenAI Responses API**. Inclui API FastAPI, interface web de demonstração, 21 testes automatizados e documentos técnicos.
 
-O CLYVO Elo propõe manter o vínculo entre a clínica veterinária e o tutor nos intervalos entre consultas, utilizando acompanhamento clínico, dispositivos IoT e Inteligência Artificial.
+## Equipe
 
----
+| Integrante | RM |
+|---|---|
+| João Victor Santana dos Santos | 566063 |
+| Gabriel Cabral Mendes Mariano | 563230 |
 
-## 1. Sobre o projeto
+## 1. Funcionalidades
 
-O **CLYVO Elo** é uma solução de acompanhamento contínuo do cuidado veterinário.
+- Carrega cenários de Lara (normal), Zakaria (alertas ambientais) e Bolt (pós-operatório).
+- Identifica alertas por regras **determinísticas**: água abaixo de 20, ração abaixo de 10, temperatura acima de 30°C, umidade fora de 30–70%; pós-operatório gera alerta alto. Esses limites são de **demonstração** e não são protocolos veterinários validados.
+- Chama um modelo OpenAI com contexto estruturado e alertas priorizados, gerando orientação em português para o tutor.
+- Acrescenta aviso de que o texto não substitui o médico-veterinário.
+- Apresenta os resultados pela interface `/` e pela API documentada em `/docs`.
+- O LLM **não decide prioridade**: as prioridades vêm de `app/rules.py`.
 
-A proposta atua em três frentes principais:
+## 2. Pré-requisitos e configuração
 
-- **Preventivo:** lembretes de vacinação, vermífugo e check-ups;
-- **Continuidade terapêutica:** acompanhamento de medicamentos, orientações veterinárias e cuidados pós-operatórios;
-- **Bem-estar contínuo:** utilização de sensores IoT para monitoramento de água, ração e condições ambientais.
+- Python 3.11+; conexão com internet para chamada real à OpenAI.
+- Chave OpenAI API com créditos/faturamento habilitados. A assinatura do ChatGPT **não** inclui automaticamente créditos da API.
 
-Dentro dessa solução, o **CLYVO AI** representa o componente inteligente responsável por analisar informações do pet, identificar situações relevantes e produzir orientações contextualizadas para o tutor.
+### Segurança da API (importante)
 
----
+**Os POSTs são fechados por padrão.** Para executar a demonstração **somente no próprio computador**, use `CLYVO_LOCAL_DEMO=true` com Uvicorn em `127.0.0.1`. O modo local rejeita requisições de IPs externos. Para integrar Java ↔ Python em servidores separados, defina **o mesmo token secreto** em `CLYVO_API_TOKEN` no Python e `CLYVO_AI_TOKEN` no Java; não use modo demo. Em deploy, use HTTPS, gateway/autorização, limite de taxa/consumo, gestão de segredos e logs. A presença de token estático é apenas um primeiro controle, não autenticação de usuários finais.
 
-## 2. Problema
+### Windows PowerShell (VS Code)
 
-Grande parte do acompanhamento de um pet acontece fora da clínica veterinária.
+```powershell
+git clone -b sprint4-ia-generativa https://github.com/Jsantanadsx/clyvo-elo-ai.git
+cd clyvo-elo-ai
+python -m venv .venv
+.\.venv\Scripts\python.exe -m pip install -r requirements-dev.txt
+# Defina a chave na sessão, sem gravar no Git:
+$env:OPENAI_API_KEY = "SUA_CHAVE_PRIVADA"
+$env:OPENAI_MODEL = "gpt-4o-mini"
+$env:CLYVO_LOCAL_DEMO = "true"  # apenas localhost, sem token
+.\.venv\Scripts\python.exe -m uvicorn app.api:app --host 127.0.0.1 --port 8000
+```
 
-Nesse período, alterações no consumo de água e ração, condições ambientais ou informações relacionadas ao tratamento podem passar despercebidas.
+Abra `http://127.0.0.1:8000` e selecione um cenário. Use **Executar motor de regras** e depois **Gerar orientação com IA**. A API interativa estará em `http://127.0.0.1:8000/docs`.
 
-Além disso, dados isolados de sensores nem sempre são facilmente interpretados pelo tutor.
+**Atenção:** comandos `git clone` acima só terão o código novo depois de ele ser publicado no GitHub. Se usar o pacote ZIP recebido antes do push, entre na pasta extraída e execute os passos a partir de `python -m venv .venv`.
 
-O CLYVO Elo busca transformar esses dados em informações compreensíveis e priorizadas, permitindo maior continuidade no acompanhamento do animal.
+### Linux/macOS
 
----
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements-dev.txt
+export OPENAI_API_KEY='SUA_CHAVE_PRIVADA'
+export CLYVO_LOCAL_DEMO=true # apenas localhost
+python -m uvicorn app.api:app --host 127.0.0.1 --port 8000
+```
 
-## 3. Solução proposta
+Não coloque a chave em frontend, capturas de tela, commits, README ou gravações. `.env` está no `.gitignore`; a aplicação **não carrega `.env` automaticamente**, configure as variáveis de ambiente na sessão/serviço.
 
-A solução combina dados provenientes de:
+## 3. Execução via terminal
 
-- perfil do pet;
-- histórico e eventos clínicos;
-- dispositivos IoT;
-- leituras de sensores;
-- alertas registrados.
+```bash
+python app/main.py --cenario 1 --somente-regras
+python app/main.py --cenario 2
+python app/main.py --cenario 3
+```
 
-Esses dados são processados inicialmente por um **motor de regras**, responsável por detectar condições relevantes.
+O modo `--somente-regras` não chama IA generativa. Com a chave ausente, qualquer solicitação generativa falha de forma explícita com erro, em vez de simular um LLM.
 
-Os resultados podem então ser utilizados pelo componente **CLYVO AI**, cuja arquitetura proposta prevê integração com um modelo de linguagem (LLM) para geração de orientações personalizadas.
+## 4. Exemplos de API
 
----
+```bash
+# Health e cenários
+curl http://127.0.0.1:8000/health
+curl http://127.0.0.1:8000/api/cenarios/alerta
 
-## 4. Papel da Inteligência Artificial
+# Windows PowerShell:
+$payload = Get-Content data/cenario_alerta.json -Raw
+Invoke-RestMethod -Method Post -Uri http://127.0.0.1:8000/api/alertas -ContentType 'application/json' -Body $payload
+Invoke-RestMethod -Method Post -Uri http://127.0.0.1:8000/api/analisar -ContentType 'application/json' -Body $payload
+```
 
-A arquitetura proposta utiliza uma abordagem híbrida:
+### Endpoints
 
-**Motor de Regras + IA Generativa baseada em LLM**
+| Método | Endpoint | Resultado |
+|---|---|---|
+| GET | `/` | Interface de demonstração |
+| GET | `/health` | Estado da API e da configuração |
+| GET | `/docs` | Documentação interativa FastAPI |
+| GET | `/api/cenarios` | Lista de cenários |
+| GET | `/api/cenarios/{codigo}` | JSON controlado do cenário |
+| POST | `/api/alertas` | Alertas por regras, sem LLM |
+| POST | `/api/analisar` | Alertas + orientação real do LLM |
 
-O motor de regras é responsável por condições objetivas, como:
+Os dois endpoints POST exigem `X-CLYVO-TOKEN` correspondente a `CLYVO_API_TOKEN` por padrão. Sem token, só funcionam com `CLYVO_LOCAL_DEMO=true` **e origem em loopback**. Nunca habilite o modo demo em deploy público. Use HTTPS, limites de requisições e custos. O token é proteção serviço a serviço, não autorização por usuário.
 
-- nível de água abaixo do esperado;
-- nível de ração abaixo do esperado;
-- temperatura elevada;
-- umidade fora da faixa esperada;
-- existência de acompanhamento pós-operatório.
+## 5. Testes automatizados
 
-A IA Generativa é proposta como uma camada posterior, responsável por transformar alertas e contexto em uma mensagem de linguagem natural personalizada para o tutor.
+```bash
+python -m pytest -q
+```
 
-Essa separação permite manter condições críticas explícitas e testáveis, enquanto a IA é utilizada principalmente para contextualização e comunicação.
+21 testes em `tests/test_sprint4.py`: cenários, alertas, limites, dados inválidos, tokens, acesso externo, normalização e validação de tipo clínico, indisponibilidade, contrato com LLM (mock), falha do provedor, validação de resposta e interface. GitHub Actions executa os testes automaticamente sem acesso à chave da OpenAI.
 
-> **Importante:** o protótipo atual simula a camada de geração de orientação. Não há chamada a um LLM externo nesta versão.
-
----
-
-## 5. IoT e dados monitorados
-
-A arquitetura do CLYVO Elo prevê dispositivos IoT para acompanhamento do ambiente e dos recursos disponíveis ao pet.
-
-No protótipo são considerados:
-
-- nível de água;
-- nível de ração;
-- temperatura ambiente;
-- umidade.
-
-Os dispositivos previstos incluem:
-
-- bebedouro inteligente;
-- comedouro inteligente;
-- sensor climático.
-
-Na versão atual, as leituras dos dispositivos são simuladas através de arquivos JSON.
-
----
+**Limitação importante:** os testes locais não fazem chamadas pagas ao provedor. O mock valida somente o contrato. Para comprovar IA real ao professor, configure a chave, faça a solicitação `/api/analisar` e grave o resultado. Documente também a data, modelo e cenário executado.
 
 ## 6. Arquitetura
 
-A arquitetura proposta integra dispositivos IoT, backend, banco de dados, motor de regras e Inteligência Artificial.
-
-![Arquitetura CLYVO AI](docs/arquitetura-clyvo-ai.png)
-
-Fluxo principal:
-
 ```text
-Sensores IoT
-     ↓
-Backend / API CLYVO Elo
-     ↓
-Banco de Dados
-     ↓
-Motor de Regras
-     ↓
-Alertas + Contexto
-     ↓
-CLYVO AI / LLM
-     ↓
-Aplicação CLYVO Elo
-     ↓
-Tutor / Clínica Veterinária
+JSON de demonstração / aplicação CLYVO
+               |
+               v
+        FastAPI /api/alertas ------------------> Motor de regras -> prioridades
+               |
+        /api/analisar
+               |                  (alertas + dados controlados)
+               +----------------------------------------+
+                                                        v
+                                            OpenAI Responses API
+                                                        |
+                                                        v
+                                              Orientação ao tutor
 ```
 
-A documentação detalhada da proposta está disponível em:
+Para uso real, dados e eventos vêm do backend/banco, não dos JSONs de demonstração. O painel Java do grupo já possui uma área do tutor; a integração proposta está documentada em [`docs/integracao-java.md`](docs/integracao-java.md) e **ainda precisa ser conectada e verificada no painel Java**.
 
-`docs/proposta-ia.md`
+## 7. Segurança, privacidade e limites
 
----
+- Cenários de demonstração têm dados sintéticos; **não envie prontuários identificáveis ou dados pessoais reais ao LLM** sem avaliação de privacidade, base legal e medidas adequadas.
+- O prompt recebe as leituras e alertas classificados, evita prescrição/diagnóstico e trata o texto como assistência informativa. Uma validação heurística pós-geração rejeita padrões de dose/prescrição/diagnóstico; **não garante segurança clínica** e deve ser complementada por revisão profissional antes de uso real.
+- Não substituir atendimento veterinário nem alterar prioridades via LLM.
+- Falha de API retorna erro claro HTTP 503. Alertas determinísticos continuam disponíveis.
+- Os limites usados pelo motor são didáticos, não validados clinicamente.
 
-## 7. Estrutura do repositório
+## 8. Evidências e entrega Sprint 4
 
-```text
-clyvo-elo-ai/
-│
-├── app/
-│   ├── main.py
-│   ├── rules.py
-│   └── ai_service.py
-│
-├── data/
-│   ├── exemplo_pet.json
-│   ├── cenario_normal.json
-│   ├── cenario_alerta.json
-│   └── cenario_pos_operatorio.json
-│
-├── docs/
-│   ├── arquitetura-clyvo-ai.png
-│   └── proposta-ia.md
-│
-├── README.md
-├── requirements.txt
-└── .gitignore
-```
+- Código e documentação técnica: este repositório.
+- Plano de QA: [`docs/plano-testes-qa.md`](docs/plano-testes-qa.md).
+- **Evidência real da chamada OpenAI:** executada com os três cenários em 02/11/2026; [capturas e matriz de resultados](docs/evidencias-validacao-2026-11-02.md).
+- **Integração ponta a ponta com painel Java:** pendente de implementação/verificação.
+- **Vídeo pitch (~5 minutos):** [INSERIR LINK DEPOIS DE GRAVAR].
+- ZIP da disciplina: incluir links do YouTube não listado e deste repositório.
 
-### Principais componentes
+## 9. Evidências da Sprint 4
 
-- `main.py` — controla a execução do protótipo;
-- `rules.py` — implementa o motor de regras;
-- `ai_service.py` — representa a camada de geração de orientação;
-- `data/` — contém os dados simulados;
-- `docs/` — contém documentação técnica e arquitetura.
+- Zakaria: quatro alertas, prioridade conferida e orientação real.
+- Lara: zero alertas, com orientação preventiva.
+- Bolt: três alertas, com orientação contextualizada para o pós-operatório.
+- Execução automatizada relatada no ambiente Windows: **21 passed** (suíte local ampliada para o CR; revalidar o CI após publicação).
+- Ver arquivos em [`evidencias/`](evidencias/) e a [matriz documentada](docs/evidencias-validacao-2026-11-02.md).
+- **Ainda pendentes:** teste ponta a ponta com painel Java e vídeo final.
 
----
+## 10. Pitch Sprint 3
 
-## 8. Tecnologias utilizadas
+[Vídeo original da Sprint 3](https://www.youtube.com/watch?v=n-DC-6svdz8) — histórico, não substitui o vídeo da Sprint 4.
 
-### Linguagem
+## 11. Collection para a Sprint 4 de QA
 
-- Python
+A collection `qa-postman-collection.json` contém **4 testes automatizados HTTP com asserções JavaScript** sem custo de LLM. Importe no **Insomnia ou Postman**, inicie o servidor local e execute a pasta `QA - 4 testes automatizados (sem custo de LLM)`.
 
-### Dados
+A pasta `Integração REAL com IA` faz chamada paga ao modelo e só deve ser executada após configurar e testar a chave. Gravar o vídeo mostrando importação/configuração, execução dos quatro testes e resultados, conforme o enunciado de QA.
 
-- JSON
+Exemplos de correção dos PBIs e critérios de aceite estão em [`docs/correcao-pbis-sprint3.md`](docs/correcao-pbis-sprint3.md). Eles ainda precisam ser conferidos e aplicados no Azure Boards existente.
 
-### Versionamento
+## 12. Planejamento de sistema e conferência final
 
-- Git
-- GitHub
+- [Casos manuais para Azure Boards](docs/qa-testes-manuais-sistema.md) — propostas ainda não cadastradas.
+- [Checklist da Sprint 4](docs/checklist-entrega.md).
+- [Arquitetura demonstrada e integração pendente](docs/arquitetura-sprint4.md).
 
-### Conceitos utilizados
+## 13. Histórico do Code Review PR #1
 
-- Internet das Coisas (IoT);
-- Inteligência Artificial Generativa;
-- Large Language Models (LLM);
-- motor de regras;
-- personalização baseada em contexto;
-- processamento de dados estruturados.
+- **CR-01:** os POSTs exigem token por padrão; demonstração sem token requer opt-in explícito e origem loopback.
+- **CR-02:** uma validação pós-geração rejeita saídas com padrões de prescrição/dose/diagnóstico; ela é uma barreira básica e não equivale à revisão clínica.
+- **CR-03:** tipos de evento pertencem a um enum com normalização (ex.: `pos-operatorio` → `POS_OPERATORIO`); tipos não suportados retornam 422.
+- **CI:** workflow `.github/workflows/python-tests.yml` testa sem segredo e sem chamadas pagas.
+- **Validação:** `python -m pytest -q` → 21 testes aprovados em ambiente de revisão. Testes reais com OpenAI anteriores aos ajustes precisam ser repetidos após a atualização.
 
----
+## 14. Matriz oficial e QA
 
-## 9. Como executar
-
-### Pré-requisitos
-
-É necessário possuir o Python instalado.
-
-Clone o repositório:
-
-```bash
-git clone https://github.com/Jsantanadsx/clyvo-elo-ai.git
-```
-
-Entre na pasta:
-
-```bash
-cd clyvo-elo-ai
-```
-
-Execute:
-
-```bash
-python app/main.py
-```
-
-Em alguns ambientes Windows também é possível utilizar:
-
-```bash
-py app/main.py
-```
-
-O sistema apresentará os cenários disponíveis:
-
-```text
-1 - Cenário normal
-2 - Cenário com alertas ambientais
-3 - Cenário pós-operatório
-```
-
-Digite o número desejado para executar a análise.
-
----
-
-## 10. Demonstração
-
-O protótipo possui três cenários simulados.
-
-### Cenário 1 — Normal
-
-Representa um pet cujos dados monitorados estão dentro dos parâmetros esperados.
-
-**Resultado esperado:**
-
-- nenhum alerta relevante;
-- orientação para manutenção do acompanhamento.
-
-### Cenário 2 — Alertas ambientais
-
-Representa alterações simultâneas nos dados monitorados.
-
-São simulados:
-
-- nível de água baixo;
-- nível de ração baixo;
-- temperatura elevada;
-- umidade fora da faixa esperada.
-
-**Resultado esperado:**
-
-- identificação dos quatro eventos;
-- classificação dos alertas por prioridade;
-- geração de orientação para o tutor.
-
-### Cenário 3 — Pós-operatório
-
-Representa o pet Bolt em acompanhamento após procedimento veterinário.
-
-O cenário combina:
-
-- nível de água baixo;
-- nível de ração baixo;
-- evento clínico de pós-operatório.
-
-**Resultado esperado:**
-
-- identificação dos alertas ambientais;
-- identificação do contexto clínico;
-- geração de orientação contextualizada.
-
----
-
-## 11. Resultados parciais
-
-O protótipo atual consegue:
-
-1. carregar informações simuladas do pet;
-2. processar dados de sensores IoT;
-3. considerar informações clínicas;
-4. aplicar regras de negócio;
-5. identificar alterações;
-6. classificar alertas por prioridade;
-7. combinar contexto clínico e ambiental;
-8. produzir uma orientação personalizada;
-9. diferenciar diferentes cenários de acompanhamento.
-
-A implementação funciona como uma **prova de conceito da arquitetura proposta**.
-
----
-
-## 12. Limitações do protótipo
-
-A versão atual possui algumas limitações.
-
-Os sensores IoT não são dispositivos físicos nesta etapa. Seus dados são simulados através de arquivos JSON.
-
-Também não existe integração com um serviço externo de LLM.
-
-O arquivo `ai_service.py` simula a camada responsável pela geração da orientação que, na arquitetura completa, poderá ser integrada a um modelo generativo.
-
-O sistema não realiza diagnóstico veterinário.
-
-As informações geradas possuem caráter de apoio e não substituem avaliação realizada por um médico-veterinário.
-
----
-
-## 13. Evoluções futuras
-
-Entre as possíveis evoluções estão:
-
-- integração com dispositivos IoT reais;
-- comunicação dos sensores com uma API;
-- integração com banco de dados;
-- integração real com API de LLM;
-- histórico temporal das leituras;
-- personalização baseada no histórico individual do pet;
-- notificações automáticas;
-- dashboard para clínicas;
-- aplicação mobile para tutores;
-- identificação de padrões de comportamento;
-- modelos preditivos utilizando dados adequados e validados.
-
----
-
-## 14. Integrantes
-
-Projeto desenvolvido para o Challenge FIAP.
-
-**Integrantes:**
-
-- João Victor Santana dos Santos — RM566063
-- Gabriel Cabral Mendes Mariano — RM563230
-
----
-
-## 15. Vídeo Pitch
-
-Vídeo de apresentação do projeto e demonstração funcional:
-
-**YouTube:**  
-`https://www.youtube.com/watch?v=n-DC-6svdz8`
-
-O vídeo apresenta:
-
-- problema identificado;
-- proposta do CLYVO Elo;
-- utilização de IoT;
-- papel da Inteligência Artificial;
-- arquitetura da solução;
-- demonstração funcional do protótipo;
-- benefícios para tutor, clínica e pet.
+- [Mapa de atendimento dos requisitos da Sprint 4](docs/mapa-atendimento-sprint4.md)
+- [Roteiros manuais para Azure Boards](docs/qa-execucao-azure-boards.md)
+- [Roteiro do vídeo de QA](docs/roteiro-video-qa.md)
+- [Links da entrega QA (a completar na branch develop)](docs/links-entrega-qa.md)
+- [Como atualizar o PR #1 após o Code Review](docs/atualizar-pr1.md)
