@@ -138,7 +138,7 @@ Para uso real, dados e eventos vêm do backend/banco, não dos JSONs de demonstr
 - Código e documentação técnica: este repositório.
 - Plano de QA: [`docs/plano-testes-qa.md`](docs/plano-testes-qa.md).
 - **Evidência real da chamada OpenAI:** executada com os três cenários em 02/11/2026; [capturas e matriz de resultados](docs/evidencias-validacao-2026-11-02.md).
-- **Integração ponta a ponta com painel Java:** pendente de implementação/verificação.
+- **Integração ponta a ponta com painel Java:** Concluída : https://clyvo-elo-java.onrender.com
 - **Vídeo pitch (~5 minutos):** [INSERIR LINK DEPOIS DE GRAVAR].
 - ZIP da disciplina: incluir links do YouTube não listado e deste repositório.
 
@@ -149,7 +149,6 @@ Para uso real, dados e eventos vêm do backend/banco, não dos JSONs de demonstr
 - Bolt: três alertas, com orientação contextualizada para o pós-operatório.
 - Execução automatizada relatada no ambiente Windows: **21 passed** (suíte local ampliada para o CR; revalidar o CI após publicação).
 - Ver arquivos em [`evidencias/`](evidencias/) e a [matriz documentada](docs/evidencias-validacao-2026-11-02.md).
-- **Ainda pendentes:** teste ponta a ponta com painel Java e vídeo final.
 
 ## 10. Pitch Sprint 3
 
