@@ -1,24 +1,42 @@
-# Integração do componente de IA com o painel Java do grupo
+# Integração implementada — Java Spring Boot + Python FastAPI + OpenAI
 
-Painel Spring Boot: https://github.com/GabrielCabralmm/clyvo-elo-java
+**Serviços:**
 
-O painel já possui área do tutor, alertas e página `/ecossistema`. O serviço de IA pode ser chamado pelo backend Spring Boot com `RestClient`, de modo que **o navegador do tutor não precise acessar diretamente o endpoint Python**, e a credencial não fique exposta ao usuário.
+- [Painel Java](https://clyvo-elo-java.onrender.com) — [repositório Java](https://github.com/GabrielCabralmm/clyvo-elo-java)
+- [API Python FastAPI](https://clyvo-elo-ai-python.onrender.com) — [estado `/health`](https://clyvo-elo-ai-python.onrender.com/health)
+
+## Fluxo integrado
+
+1. Um tutor autenticado abre um pet autorizado e clica em **Gerar orientação com IA (demo)**.
+2. O Java obtém do banco os dados cadastrais do pet e o último evento clínico. Água, ração, temperatura e umidade são **leituras sintéticas, informadas manualmente**, não medidas por sensores em operação.
+3. O serviço Java `ClyvoAiClient` envia um POST HTTPS a `/api/analisar` no backend Python, acrescentando `X-CLYVO-TOKEN` no servidor.
+4. O Python valida o contrato, aplica regras determinísticas para definir os alertas e consulta a OpenAI Responses API para produzir a orientação.
+5. O JSON devolvido contém `alertas`, `quantidade_alertas`, `origem` e `orientacao`; o Java exibe o resultado na tela do tutor.
+
+O painel Java também oferece `/ecossistema/ia` para executar os cenários sintéticos Lara, Zakaria e Bolt com os perfis de clínica autorizados.
 
 ## Contrato HTTP
 
-- `POST /api/alertas`: recebe dados de pet, sensores e evento; retorna tipos e prioridades por regras.
-- `POST /api/analisar`: recebe os mesmos dados e retorna os alertas MAIS `orientacao` gerada por LLM real.
-- Cabeçalhos: `Content-Type: application/json` e, caso `CLYVO_API_TOKEN` esteja configurado no Python, `X-CLYVO-TOKEN: <token>`.
-- `503`: modelo indisponível ou sem configuração; apresentar erro amigável e permitir exibir apenas alertas, sem fingir geração.
-- `422`: JSON inválido; validar formulário antes de enviar.
-- `GET /health`: status do serviço e indicação se chave está configurada (não revela credenciais).
+| Método | Endpoint | Retorno |
+|---|---|---|
+| GET | `/health` | Estado do serviço e indicação de modelo configurado, sem revelar chave |
+| GET | `/api/cenarios/{codigo}` | JSON sintético do cenário |
+| POST | `/api/alertas` | Alertas e prioridades gerados por regras, sem LLM |
+| POST | `/api/analisar` | Alertas e orientação do LLM real |
 
-## Próxima etapa obrigatória para integração com painel final
+POSTs exigem `Content-Type: application/json` e `X-CLYVO-TOKEN`. Código HTTP `401` indica token incorreto/ausente; `422`, dados inválidos; `503`, serviço ou modelo indisponível.
 
-1. Criar serviço Java `ClyvoAiClient` chamando `/api/analisar` com `RestClient`.
-2. No fluxo do pet do tutor, obter dados **autorizados** do banco (pet/eventos) e leituras de sensores disponíveis; não inventar que sensores simulados sejam reais.
-3. Criar botão e apresentar orientação na área do tutor, mantendo a autenticação do Spring Security e validação de propriedade do pet.
-4. Tratar timeout e `503` e testar ao menos um fluxo ponta a ponta.
-5. Configurar `CLYVO_AI_URL` e `CLYVO_AI_TOKEN` como variáveis do servidor Java.
+## Configuração segura
 
-**Situação nesta entrega:** esta pasta contém o contrato e um painel de demonstração funcional do serviço Python. A integração final no painel Java deve ser implementada e testada separadamente; não a declare concluída antes de executar o fluxo ponta a ponta.
+O Java utiliza `CLYVO_AI_URL=https://clyvo-elo-ai-python.onrender.com` e `CLYVO_AI_TOKEN`. O Python utiliza `CLYVO_API_TOKEN` (mesmo segredo), `OPENAI_API_KEY` e `OPENAI_MODEL`. **Não publicar os valores dos segredos.** As instâncias Render se comunicam pela URL HTTPS pública; não é necessário estarem na mesma conta.
+
+## Evidências observadas na aplicação publicada
+
+| Condições de demonstração para a Pipoca | Resultado |
+|---|---|
+| Água 75%, ração 65%, temperatura 24 °C, umidade 50% | **0 alertas**, orientação preventiva, `OPENAI_RESPONSES_API` |
+| Água 5%, ração 15%, temperatura 34 °C, umidade 50% | **2 alertas ALTA**, orientação contextualizada, `OPENAI_RESPONSES_API` |
+
+Esses resultados foram apresentados durante a validação do sistema. Para prova visual adicional no repositório, anexar as capturas correspondentes, caso o professor solicite.
+
+**Limitações:** sem sensores físicos integrados e sem diagnóstico clínico; mensagens orientativas devem ser avaliadas por profissionais antes de qualquer uso real.

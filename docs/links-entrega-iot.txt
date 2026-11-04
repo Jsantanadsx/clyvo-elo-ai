@@ -1,6 +1,11 @@
-DISCIPLINA: Disruptive Architectures — IoT, IoB & IA Generativa (Sprint 4)
-GitHub: https://github.com/Jsantanadsx/clyvo-elo-ai
-Branch de desenvolvimento/PR: https://github.com/Jsantanadsx/clyvo-elo-ai/pull/1
-YouTube (NAO LISTADO, aproximadamente 5 minutos): [https://youtu.be/6hMTqWkoWbM]
+DISCIPLINA: Disruptive Architectures — IoT, IoB & IA Generativa — Sprint 4
+EQUIPE: João Victor Santana dos Santos — RM566063; Gabriel Cabral Mendes Mariano — RM563230
 
-ATENCAO: este arquivo e o ZIP com links so estarao prontos para entrega apos preencher a URL real do video. Conferir abertura dos links antes de enviar.
+GITHUB (CÓDIGO E DOCUMENTAÇÃO): https://github.com/Jsantanadsx/clyvo-elo-ai
+YOUTUBE (VÍDEO DA SPRINT 4): https://youtu.be/6hMTqWkoWbM
+APLICAÇÃO PYTHON (RENDER): https://clyvo-elo-ai-python.onrender.com
+API PYTHON (/health): https://clyvo-elo-ai-python.onrender.com/health
+PAINEL JAVA INTEGRADO: https://clyvo-elo-java.onrender.com
+PR #1 INCORPORADO: https://github.com/Jsantanadsx/clyvo-elo-ai/pull/1
+
+ANTES DA SUBMISSÃO: verificar que o vídeo está como NÃO LISTADO e é acessível em janela anônima; conferir todos os links; enviar o ZIP no portal da atividade.

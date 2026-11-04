@@ -1,43 +1,43 @@
 # Evidências da integração generativa — Sprint 4
 
-**Data:** 02/11/2026  
-**Ambiente observado:** Windows, Python 3.12.3, FastAPI/Uvicorn local em `127.0.0.1:8000`.  
-**Integração:** OpenAI Responses API (`OPENAI_RESPONSES_API` exibido na interface).  
-**Dados:** JSONs sintéticos oriundos da Sprint 3; nenhum prontuário real foi utilizado.
+## Validação local em 02/11/2026
 
-## Cenários executados no navegador
+**Ambiente observado:** Windows, Python 3.12.3, FastAPI/Uvicorn local em `127.0.0.1:8000`. A integração com OpenAI Responses API foi identificada na interface como `OPENAI_RESPONSES_API`. Os dados eram JSONs sintéticos; nenhum prontuário real foi utilizado.
 
-| Cenário | Entrada usada | Alertas esperados | Alertas observados | Orientação generativa | Evidência |
-|---|---|---|---|---|---|
-| Zakaria — alertas ambientais | Água 12, ração 8, temperatura 32°C, umidade 78% | 4: água ALTA, ração MÉDIA, temperatura ALTA, umidade MÉDIA | **4**, com prioridades previstas | Gerada e indicada como `OPENAI_RESPONSES_API` | [Captura](../evidencias/zakaria-ia-real.png) |
-| Lara — rotina normal | Água 75, ração 65, temperatura 24°C, umidade 50% | 0 | **0** | Orientação preventiva coerente, `OPENAI_RESPONSES_API` | [Captura](../evidencias/lara-ia-real.png) |
-| Bolt — pós-operatório | Água 18, ração 6,5, temperatura 29,5°C, umidade 55%; evento `POS_OPERATORIO` | 3: água ALTA, ração MÉDIA, acompanhamento clínico ALTA | **3**, com prioridades previstas | Orientação relacionada ao pós-operatório, `OPENAI_RESPONSES_API` | [Captura](../evidencias/bolt-ia-real.png) |
+| Cenário | Entrada | Alertas previstos e observados | Orientação real | Evidência |
+|---|---|---|---|---|
+| Zakaria — alertas ambientais | Água 12%, ração 8%, 32 °C, umidade 78% | **4**: água ALTA, ração MÉDIA, temperatura ALTA, umidade MÉDIA | `OPENAI_RESPONSES_API` | [Captura](../evidencias/zakaria-ia-real.png) |
+| Lara — rotina normal | Água 75%, ração 65%, 24 °C, umidade 50% | **0** | Preventiva, `OPENAI_RESPONSES_API` | [Captura](../evidencias/lara-ia-real.png) |
+| Bolt — pós-operatório | Água 18%, ração 6,5%, 29,5 °C, umidade 55%; evento `POS_OPERATORIO` | **3**: água ALTA, ração MÉDIA, evento clínico ALTA | Contextualizada ao pós-operatório, `OPENAI_RESPONSES_API` | [Captura](../evidencias/bolt-ia-real.png) |
 
-### Capturas
+### Registros visuais da execução local
 
 **Zakaria**
 
-![Zakaria: quatro alertas e orientação gerada](../evidencias/zakaria-ia-real.png)
+![Zakaria — quatro alertas e orientação real](../evidencias/zakaria-ia-real.png)
 
 **Lara**
 
-![Lara: nenhum alerta e orientação preventiva](../evidencias/lara-ia-real.png)
+![Lara — zero alertas e orientação preventiva](../evidencias/lara-ia-real.png)
 
 **Bolt**
 
-![Bolt: três alertas e orientação de acompanhamento](../evidencias/bolt-ia-real.png)
+![Bolt — três alertas e orientação pós-operatória](../evidencias/bolt-ia-real.png)
 
-## Evidências de execução técnica
+**Testes na validação original:** houve registro de `10 passed, 1 warning` no computador do aluno; depois, a suíte de revisão foi ampliada e houve registro de **21 testes aprovados**. Os testes de contrato com LLM usam mocks, não chamadas pagas. A evidência da IA real é independente desses testes. Os limites do motor são didáticos e não consistem em diagnóstico veterinário.
 
-- A pessoa responsável executou `python -m pytest -q` com **10 passed, 1 warning** no ambiente Windows; o warning foi de depreciação `httpx`/Starlette, sem falha nos testes.
-- Registro do servidor: `POST /api/analisar HTTP/1.1 200 OK`, durante o cenário Zakaria.
-- O retorno exibido pela aplicação identificou `OPENAI_RESPONSES_API` nos três cenários, com texto variável gerado pelo modelo.
-- **Importante:** os 10 testes automatizados usam mock/stub na camada de LLM; a prova da chamada real é a execução demonstrada nas capturas, não o `pytest`.
-- As prioridades são **regras de demonstração** do projeto e não diagnósticos ou classificação clínica validada.
+## Atualização em 03–04/11/2026 — integração Java em produção
 
-## Limitações para entrega final
+Posteriormente, o serviço Python e o painel Java foram publicados em contas Render distintas e ligados por HTTPS com token entre backends. Os testes realizados na interface Java para o pet **Pipoca** apresentaram os seguintes resultados:
 
-- A API Python foi validada localmente. **A integração com o painel Java do grupo ainda não foi executada ponta a ponta.**
-- As capturas não comprovam implantação pública, persistência em banco ou dispositivos IoT físicos; as leituras são sintéticas.
-- O vídeo final de aproximadamente cinco minutos ainda precisa ser gravado, publicado como não listado e vinculado no README.
-- Para validação de sistema completa de QA, associar os cenários aos PBIs e release plan efetivamente cadastrados no Azure Boards.
+| Condições | Resultado observado no Java |
+|---|---|
+| Água 75%, ração 65%, temperatura 24 °C, umidade 50% | 0 alertas e orientação preventiva contextualizada com `OPENAI_RESPONSES_API` |
+| Água 5%, ração 15%, temperatura 34 °C, umidade 50% | 2 alertas de prioridade ALTA e orientação contextualizada com `OPENAI_RESPONSES_API` |
+
+- Serviço Python: https://clyvo-elo-ai-python.onrender.com
+- Painel Java: https://clyvo-elo-java.onrender.com
+- Vídeo Sprint 4: https://youtu.be/6hMTqWkoWbM
+- [Contrato e arquitetura do fluxo Java](integracao-java.md)
+
+**Distinção da prova:** as capturas anteriores mostram apenas a execução local em 02/11; as observações de 03–04/11 comprovam um teste integrado posterior, mas suas capturas específicas ainda precisam ser incluídas no repositório se exigidas como material independente. O protótipo utiliza leituras sintéticas, sem telemetria física ou persistência de leituras no serviço Python.

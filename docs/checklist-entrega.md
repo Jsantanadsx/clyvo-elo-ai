@@ -1,28 +1,18 @@
-# Checklist de entrega — Sprint 4
+# Checklist da entrega — IoT, IoB e IA Generativa | Sprint 4
 
-## IoT / IA generativa
-- [x] Motor de regras preservado da Sprint 3.
-- [x] Integração real com OpenAI Responses API validada nos três cenários sintéticos.
-- [x] `pytest -q` com 21 testes aprovados na revisão (anteriores: 10 no computador do aluno).
-- [x] Capturas de Zakaria, Lara e Bolt e matriz de evidências anexadas.
-- [x] README e instruções de execução atualizados.
-- [ ] Validar Java + Python ponta a ponta; patch preparado separadamente, não executado.
-- [x] Publicar a evolução no GitHub (branch e PR #1; falta atualizar commit da revisão).
-- [ ] Retestar 3 cenários com OpenAI após a revisão de segurança.
-- [ ] Gravar pitch de aproximadamente 5 minutos e publicar como *não listado*.
-- [ ] Incluir no ZIP da submissão os links válidos do repositório e do vídeo.
+- [x] Motor de regras determinístico preservado da Sprint 3.
+- [x] Dados sintéticos Lara (0 alertas), Zakaria (4) e Bolt (3) disponíveis.
+- [x] Chamada real à OpenAI Responses API validada nos cenários.
+- [x] Serviço Python FastAPI publicado no Render.
+- [x] Integração Java → Python → OpenAI demonstrada no painel Java.
+- [x] Repositório público na branch principal `main`, com PR #1 incorporado.
+- [x] Conjunto ampliado de 21 testes registrado como aprovado na revisão; conferir workflow atual.
+- [x] Vídeo Sprint 4 gravado e link fornecido: https://youtu.be/6hMTqWkoWbM.
+- [ ] Verificar no YouTube Studio que o vídeo está **Não listado** e acessível em janela anônima.
+- [ ] Atualizar README e documentação na `main` (aplicar e revisar os arquivos deste pacote).
+- [ ] Conferir os links, montar o ZIP de entrega e enviar pelo portal da FIAP.
+- [ ] Confirmar que a plataforma registrou a submissão.
 
-## QA
-- [x] Collection de 4+ cenários de API com asserções preparada para importação.
-- [x] Matriz inicial de casos manuais de sistema elaborada a partir dos fluxos do painel Java.
-- [x] Modelos de revisão de PBIs e critérios de aceite preparados.
-- [ ] Corrigir PBIs reais e critérios de aceite no Azure Boards.
-- [ ] Cadastrar casos manuais e evidenciar execução/resultado real no Azure Boards.
-- [ ] Executar os quatro casos automatizados no Insomnia/Postman e registrar o resultado.
-- [ ] Gravar vídeo de configuração, execução e resultados da automação.
-- [ ] Confirmar acesso Basic + Administrador do professor.
-- [ ] Publicar links de QA em repositório público e branch `develop`.
+**Referências:** [Rastreabilidade dos requisitos](mapa-atendimento-sprint4.md) · [Evidências](evidencias-validacao-2026-11-02.md) · [Integração Java](integracao-java.md) · [Links de submissão](links-entrega-iot.txt).
 
-**Atenção:** estes checkboxes representam somente o que já foi efetivamente preparado/validado. Nenhum item pendente deve ser descrito como concluído na submissão.
-
-**Matriz de rastreabilidade dos critérios:** [`mapa-atendimento-sprint4.md`](mapa-atendimento-sprint4.md). **Plano de teste manual detalhado:** [`qa-execucao-azure-boards.md`](qa-execucao-azure-boards.md).
+**Limites:** dados e leituras simulados; sem hardware de sensores IoT integrado ou diagnóstico veterinário automático. As prioridades são didáticas e vêm exclusivamente do motor de regras.
