@@ -131,6 +131,7 @@ A suíte tem **21 testes** registrados como aprovados na revisão da Sprint 4. T
 - [Matriz e capturas](docs/evidencias-validacao-2026-11-02.md)
 - [Arquitetura](docs/arquitetura-sprint4.md)
 - [Integração com o painel Java](docs/integracao-java.md)
+- [Evidências finais da integração Java + Python + OpenAI](docs/evidencias-integracao-render.md)
 - [Roteiro do vídeo](docs/roteiro-pitch-sprint4.md)
 - [Links para ZIP e submissão](docs/links-entrega-iot.txt)
 
