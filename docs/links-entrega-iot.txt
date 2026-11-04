@@ -1,6 +1,6 @@
 DISCIPLINA: Disruptive Architectures — IoT, IoB & IA Generativa (Sprint 4)
 GitHub: https://github.com/Jsantanadsx/clyvo-elo-ai
 Branch de desenvolvimento/PR: https://github.com/Jsantanadsx/clyvo-elo-ai/pull/1
-YouTube (NAO LISTADO, aproximadamente 5 minutos): [PREENCHER APOS GRAVACAO]
+YouTube (NAO LISTADO, aproximadamente 5 minutos): [https://youtu.be/6hMTqWkoWbM]
 
 ATENCAO: este arquivo e o ZIP com links so estarao prontos para entrega apos preencher a URL real do video. Conferir abertura dos links antes de enviar.
