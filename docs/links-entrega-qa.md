@@ -1,10 +1,24 @@
-# Entrega QA — Sprint 4 (para publicar em `develop`)
+﻿# Entrega Quality Assurance — Sprint 4
 
-- **Azure Boards:** https://dev.azure.com/clyvo-elo-fiap/CLYVO%20Elo
-- **Link do vídeo da configuração/execução/resultados dos 4 testes:** `[INSERIR URL REAL DEPOIS DE GRAVAR]`
-- **Repositório público:** https://github.com/Jsantanadsx/clyvo-elo-ai
-- **Branch obrigatória:** `develop` — **não confundir com `sprint4-ia-generativa`**.
-- **Acesso do professor:** conferir inclusão na organização com licença **Basic** e função **Administrador** no projeto (verificar no Azure; não marcar como feito sem confirmação).
-- **Plano manual:** documentado em `docs/qa-execucao-azure-boards.md`; cadastrar no Azure Boards com Feature/PBI correspondente, entradas/saídas controladas, procedimento e evidências.
+## Links oficiais
 
-**Status:** material preparado para envio; vídeo, Boards e branch `develop` ainda exigem ações reais. Não entregar com marcador de URL em aberto.
+- Azure DevOps: https://dev.azure.com/clyvo-elo-fiap/CLYVO%20Elo
+- Video de QA: https://youtu.be/sNcjHBIQDv4
+- Repositorio: https://github.com/Jsantanadsx/clyvo-elo-ai
+- Branch da entrega: develop
+
+## Trabalho realizado
+
+- PBI #24 revisado no Azure Boards.
+- 14 casos de teste manuais cadastrados: IDs #39 a #52.
+- Quatro testes automatizados executados pelo Newman.
+- Oito assertivas aprovadas, sem falhas.
+- Relatorios salvos em evidencias/qa/.
+
+## Limitacoes identificadas
+
+- Os casos manuais foram cadastrados, mas nao tiveram execucao completa registrada.
+- A conta possui acesso limitado ao Azure Test Plans.
+- O professor esta cadastrado como Project Administrator.
+- O nivel de acesso Basic do professor ainda nao foi verificado.
+- A revisao integral dos PBIs e a vinculacao de todos os casos permanecem pendentes.

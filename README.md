@@ -138,3 +138,10 @@ A suíte tem **21 testes** registrados como aprovados na revisão da Sprint 4. T
 O [PR #1](https://github.com/Jsantanadsx/clyvo-elo-ai/pull/1) da evolução IoT foi incorporado à branch `main`. O arquivo de entrega deve conter os links do YouTube e GitHub; confirmar os requisitos no portal da FIAP antes do envio.
 
 **Histórico:** [pitch original da Sprint 3](https://www.youtube.com/watch?v=n-DC-6svdz8) — não substitui o vídeo desta Sprint 4.
+
+## Entrega Quality Assurance - Sprint 4
+
+- [Documentacao e links de QA](docs/links-entrega-qa.md)
+- [Resultados da automacao](docs/relatorio-execucao-qa.md)
+- [Video de QA](https://youtu.be/sNcjHBIQDv4)
+
